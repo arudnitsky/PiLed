@@ -1,0 +1,19 @@
+# How to control the LED on a Pi Zero
+
+Found at: 
+<https://www.jeffgeerling.com/blogs/jeff-geerling/controlling-pwr-act-leds-raspberry-pi>
+
+pi@raspberrypi:~/ledPlay $ cat /sys/class/leds/led0/trigger
+[none] rc-feedback kbd-scrolllock kbd-numlock kbd-capslock kbd-kanalock kbd-shiftlock kbd-altgrlock kbd-ctrllock kbd-altlock kbd-shiftllock kbd-shiftrlock kbd-ctrlllock kbd-ctrlrlock timer oneshot heartbeat backlight gpio cpu cpu0 default-on input panic actpwr mmc1 mmc0 rfkill-any rfkill-none rfkill0 rfkill1
+
+Examples:
+
+Set the Pi Zero ACT LED trigger to 'none':
+echo none | sudo tee /sys/class/leds/led0/trigger
+
+Turn off the Pi Zero ACT LED:
+echo 0 | sudo tee /sys/class/leds/led0/brightness
+
+Turn on the Pi Zero ACT LED:
+echo 1 | sudo tee /sys/class/leds/led0/brightness
+
