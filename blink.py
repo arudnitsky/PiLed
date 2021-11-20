@@ -3,20 +3,20 @@ import sys
 from time import sleep
 import RPi.GPIO as GPIO
 
-ledPin = 21
+LED_PIN = 32
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(ledPin,GPIO.OUT,initial=GPIO.LOW)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(LED_PIN,GPIO.OUT,initial=GPIO.LOW)
 
-print sys.argv[0] + " starting"
+print(sys.argv[0] + " starting")
 try:
-   while True:
-      GPIO.output( ledPin ,GPIO.HIGH)
-      sleep(.5)
-      GPIO.output( ledPin ,GPIO.LOW)
-      sleep(.5)
+    while True:
+        GPIO.output( LED_PIN ,GPIO.HIGH)
+        sleep(.5)
+        GPIO.output( LED_PIN ,GPIO.LOW)
+        sleep(.5)
 except KeyboardInterrupt:
-   print "\r\n" + sys.argv[0] + " SIGINT received - exiting"
-   GPIO.output( ledPin, GPIO.LOW)
-   GPIO.cleanup()
- 
+    print("\r\n" + sys.argv[0] + " SIGINT received - exiting")
+    GPIO.output( LED_PIN, GPIO.LOW)
+    GPIO.cleanup()
+
