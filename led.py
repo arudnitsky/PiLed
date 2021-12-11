@@ -1,50 +1,47 @@
-import math
 import sys
 import time
 import RPi.GPIO as GPIO
-
-def ease_inout_quint(x):
-    return 16 * math.pow(x, 5) if x < 0.5 else 1 - math.pow(-2 * x + 2, 5) / 2
-
-def ease_in_expo(x):
-    return 0 if x == 0 else math.pow(2, 10 * x - 10)
-
-def ease_out_expo(x):
-    return 1 if x == 1 else 1 - math.pow(2, -10 * x)
+import easings as ea
 
 class Led:
     def __init__(self, pin):
-        print(f'constructor call with arg {pin}' )
         self.pin = pin
+        self.dutyCycle = 0
         GPIO.setup(self.pin, GPIO.OUT, initial=GPIO.LOW)
-        self.pwm = GPIO.PWM(pin, 100)
-        self.pwm.start(0)
+        self.pwm = GPIO.PWM(pin, 100) # 100Hz
 
-    def __del__(self):
-        self.stop()
+    def start(self):
+        self.pwm.start(self.dutyCycle)
 
     def stop(self):
         self.pwm.stop()
-        GPIO.output(self.pin, GPIO.LOW)
 
-    def ramp_down(self):
-        self.duty_cycle=100
-        while (self.duty_cycle != 0):
-            time.sleep(.015)
-            self.duty_cycle = self.duty_cycle - 1
-            self.pwm.ChangeDutyCycle(self.duty_cycle)
+    def shut_down(self):
+        self.pwm.stop()
+        GPIO.output(self.pin, GPIO.LOW)
 
     def set_brightness(self, brightness):
         self.dutyCycle = brightness
         if (self.dutyCycle == 0):
-            GPIO.output(self.pin, GPIO.LOW)
-            self.pwm.stop
+            self.pwm.stop()
+            #GPIO.output(self.pin, GPIO.LOW)
         else:
+            self.pwm.start(self.dutyCycle)
             self.pwm.ChangeDutyCycle(self.dutyCycle)
+
+    def ramp_updown(self):
+        for rampIndex in range(0, 101, 1):
+            brightness = int(ea.ease_in_expo(rampIndex/100) * 100)
+            self.set_brightness(brightness)
+            time.sleep(0.01)
+        for rampIndex in range(100, -1, -1):
+            brightness = int(ea.ease_in_expo(rampIndex/100) * 100)
+            self.set_brightness(brightness)
+            time.sleep(0.01)
 
     def pulse(self):
         for rampIndex in range(100, 0, -1):
-            brightness = int(ease_in_expo(rampIndex/100) * 100)
+            brightness = int(ea.ease_in_expo(rampIndex/100) * 100)
             self.set_brightness(brightness)
             time.sleep(0.01)
 
@@ -52,9 +49,25 @@ if __name__ == '__main__':
     try:
         GPIO.setmode(GPIO.BCM)
         led = Led(26)
-        for _ in range(3):
-            led.pulse()
-            time.sleep(.3)
+        led.start()
+        led.pulse()
+        led.set_brightness(0)
+        time.sleep(2)
+
+        for _ in range(30):
+            led.ramp_updown();
+            #led.pulse()
+
+#        for brightness in [0, 25, 50, 75, 100, 75, 100, 75, 100, 75, 100]:
+#            print("brightess:", brightness)
+#            led.set_brightness(brightness)
+#            time.sleep(.5)
+
+#        for _ in range(3):
+#            led.ramp_down()
+#            time.sleep(.3)
+#
+        led.stop()
 
     except KeyboardInterrupt:
         print ("\r\n" + sys.argv[0] + " SIGINT received - exiting")
