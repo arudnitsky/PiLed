@@ -5,6 +5,7 @@ import easings as ea
 
 class Led:
     def __init__(self, pin):
+        print("Led: ", pin )
         self.pin = pin
         self.dutyCycle = 0
         GPIO.setup(self.pin, GPIO.OUT, initial=GPIO.LOW)
@@ -24,7 +25,6 @@ class Led:
         self.dutyCycle = brightness
         if (self.dutyCycle == 0):
             self.pwm.stop()
-            #GPIO.output(self.pin, GPIO.LOW)
         else:
             self.pwm.start(self.dutyCycle)
             self.pwm.ChangeDutyCycle(self.dutyCycle)
@@ -39,8 +39,9 @@ class Led:
             self.set_brightness(brightness)
             time.sleep(0.01)
 
+
     def pulse(self):
-        for rampIndex in range(100, 0, -1):
+        for rampIndex in range(100, -1, -1):
             brightness = int(ea.ease_in_expo(rampIndex/100) * 100)
             self.set_brightness(brightness)
             time.sleep(0.01)
